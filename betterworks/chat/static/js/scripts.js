@@ -28,11 +28,15 @@ function makeInitiateChatLinkForEmail(email) {
             $('#chat_title').text('Chat with ' + email);
             $('#chat_messages')
                 .html($.map(response.messages, function (message, i) {
-                  return "(" + message.timestamp + ") "
-                      + message.email
-                      + ": "
-                      + message.body
-                      + "<br>";
+                  message_display = "<div>" + message.body + "</div>"
+                    + "<div>";
+                  if (message.from_current_user) {
+                    message_display += "me";
+                  } else {
+                    message_display += message.email;
+                  }
+                  message_display += " - " + message.timestamp + "<br>";
+                  return message_display;
                 }));
             $('#post_message')
                 .unbind()

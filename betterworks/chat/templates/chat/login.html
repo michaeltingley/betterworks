@@ -1,23 +1,22 @@
-<h1>Login</h1>
+{% load staticfiles %}
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/signin.css' %}">
 
 {% if error %}
   <p>{{ error }}</p>
 {% endif %}
 
-<form method="post" action="{% url 'chat:login' %}">
-  {% csrf_token %}
-  <table>
-    <tr>
-      <td><label for="email">Email:</label></td>
-      <td><input type="text" name="email"></label></td>
-    </tr>
-    <tr>
-      <td><label for="password">Password:</label></td>
-      <td><input type="password" name="password"></label></td>
-    </tr>
-  </table>
-
-  <input type="submit" name="action" value="Sign up" />
-  <input type="submit" name="action" value="Log in" />
-  <input type="hidden" name="next" value="{{ next }}" />
-</form>
+<div class="container">
+  <form class="form-signin" method="post" action="{% url 'chat:login' %}">
+    {% csrf_token %}
+    <h2 class="form-signin-heading">Please sign in</h2>
+    <label for="email" class="sr-only">Email:</label>
+    <input type="email" name="email" class="form-control" placeholder="Email address" required="" autofocus=""></input>
+    <label for="password" class="sr-only">Password:</label>
+    <input type="password" name="password" class="form-control" placeholder="Password" required=""></input>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" name="action">Sign up</button>
+    <button class="btn btn-lg btn-primary btn-block" type="submit" name="action">Log in</button>
+    <input type="hidden" name="next" value="{{ next }}" />
+  </form>
+</div>
