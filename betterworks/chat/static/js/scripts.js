@@ -1,3 +1,5 @@
+var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
+
 function makeInitiateChatLinkForEmail(email) {
   return $('<li />', {
     html: $('<a />', {
@@ -7,12 +9,13 @@ function makeInitiateChatLinkForEmail(email) {
           type: 'POST',
           url: '/chat/get_messages/',
           data: {
-            email: email,
-            csrfmiddlewaretoken: window.CSRF_TOKEN
+            'csrfmiddlewaretoken': window.CSRF_TOKEN,
+            'email': email,
           },
           success: function(response) {
             $('#email_prefix').val('');
             $('#found_users').empty();
+            $('#chat_pane').show();
             $('#chat_title').text('Chat with ' + email);
             $('#chat_messages')
                 .html($.map(response.messages, function (message, i) {
@@ -22,6 +25,20 @@ function makeInitiateChatLinkForEmail(email) {
                       + message.body
                       + "<br>";
                 }));
+            $('#post_message')
+                .unbind()
+                .submit(function(event) {
+                    event.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: '/chat/post_message/',
+                        data: {
+                          'csrfmiddlewaretoken': window.CSRF_TOKEN,
+                          'email': email,
+                          'message_text': $('#message_text').val(),
+                        },
+                    });
+                });
           }
         });
       }

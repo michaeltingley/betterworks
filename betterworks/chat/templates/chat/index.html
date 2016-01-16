@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<script src="//js.pusher.com/3.0/pusher.min.js"></script>
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
@@ -32,9 +33,14 @@
 			</ul>
 		</div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-			<div id="chat_pane">
+			<div id="chat_pane" class="collapse">
 			  <h2 id="chat_title"></h2>
 			  <ul id="chat_messages"></ul>
+			  <form id="post_message" method="post">
+			    {% csrf_token %}
+			    <input id="message_text" name="message_text" type="text" placeholder="Message" />
+			    <input type="submit" value="Send" />
+			  </form>
 			</div>
 		</div>
 	</div>
