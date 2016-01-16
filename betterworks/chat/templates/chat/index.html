@@ -1,5 +1,3 @@
-<h1>Chats</h1>
-
 {% load staticfiles %}
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
@@ -7,26 +5,43 @@
 <script src="{% static 'js/scripts.js' %}"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <script src="//js.pusher.com/3.0/pusher.min.js"></script>
 
-<form id="find_users" method="post">
-  {% csrf_token %}
-  <input id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
-  <input type="submit" value="Search" />
-</form>
-<ul id="found_users">
-</ul>
-<div id="chat_pane" class="collapse">
-  <h2 id="chat_title"></h2>
-  <ul id="chat_messages"></ul>
-  <form id="post_message" method="post">
-    {% csrf_token %}
-    <input id="message_text" name="message_text" type="text" placeholder="Message" />
-    <input type="submit" value="Send" />
-  </form>
-</div>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="http://getbootstrap.com/examples/dashboard/#">Chats</a>
+    </div>
+  </div>
+</nav>
 
-<form action="{% url 'chat:logout' %}" method="post">
-  {% csrf_token %}
-  <input type="submit" value="Logout" />
-</form>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-sm-3 col-md-2 sidebar">
+      <ul class="nav nav-sidebar">
+				<form id="find_users" method="post">
+				  {% csrf_token %}
+				  <input id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
+				  <input type="submit" value="Search" />
+				</form>
+				<ul id="found_users"></ul>
+				<form action="{% url 'chat:logout' %}" method="post">
+	  			{% csrf_token %}
+	  			<input type="submit" value="Logout" />
+				</form>
+			</ul>
+		</div>
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+			<div id="chat_pane" class="collapse">
+			  <h2 id="chat_title"></h2>
+			  <ul id="chat_messages"></ul>
+			  <form id="post_message" method="post">
+			    {% csrf_token %}
+			    <input id="message_text" name="message_text" type="text" placeholder="Message" />
+			    <input type="submit" value="Send" />
+			  </form>
+			</div>
+		</div>
+	</div>
+</div>
