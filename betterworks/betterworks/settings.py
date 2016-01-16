@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'polls.apps.PollsConfig',
+    'chat.apps.ChatConfig',
 ]
 
 MIDDLEWARE_CLASSES = [

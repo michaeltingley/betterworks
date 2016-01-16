@@ -1,0 +1,25 @@
+<h1>Chats</h1>
+
+{% load staticfiles %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script type="text/javascript"> window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+<script src="{% static 'js/scripts.js' %}"></script>
+
+<form id="find_users" method="post">
+  {% csrf_token %}
+  <input id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
+  <input type="submit" value="Search" />
+</form>
+<ul id="found_users">
+</ul>
+<div id="chat_pane">
+  <h2 id="chat_title"></h2>
+  <ul id="chat_messages">
+  </ul>
+</div>
+
+<form action="{% url 'chat:logout' %}" method="post">
+  {% csrf_token %}
+  <input type="submit" value="Logout" />
+</form>
