@@ -103,10 +103,12 @@ def post_message(request):
     if not message_text:
         return HttpResponseBadRequest("Must specify message")
 
+    print 'HI TINGLEY'
     shared_conversation.message_set.add(
         participant = User.objects.get(username=remote_email),
         text=message_text,
     )
+    print 'STILL HERE'
 
 
 def get_conversation_with_remote_email(request, remote_email):
