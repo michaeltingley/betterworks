@@ -77,7 +77,7 @@ def get_messages(request):
             set([request.user.username, request.POST['email']]))
     ]
     if len(shared_conversations) > 0:
-        shared_conversation = next(shared_conversations)
+        shared_conversation = shared_conversations[0]
     else:
         # Create the new conversation
         shared_conversation = Conversation.objects.create()
