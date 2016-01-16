@@ -15,8 +15,12 @@
 </ul>
 <div id="chat_pane">
   <h2 id="chat_title"></h2>
-  <ul id="chat_messages">
-  </ul>
+  <ul id="chat_messages"></ul>
+  <form id="post_message" method="post">
+    {% csrf_token %}
+    <input id="message_text" name="message_text" type="text" placeholder="Message" />
+    <input type="submit" value="Send" />
+  </form>
 </div>
 
 <form action="{% url 'chat:logout' %}" method="post">
