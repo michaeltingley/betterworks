@@ -1,4 +1,6 @@
-// var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
+var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
+
+var currentlySubscribedConversation;
 
 function makeInitiateChatLinkForEmail(email) {
   return $('<li />', {
@@ -13,6 +15,13 @@ function makeInitiateChatLinkForEmail(email) {
             'email': email,
           },
           success: function(response) {
+            pusher.unsubscribe(currentlySubscribedConversation);
+            currentlySubscribedConversation = response.uuid;
+            pusher
+                .subscribe(currentlySubscribedConversation)
+                .bind('message posted', function(message) {
+                  alert('New message: ' + message);
+                });
             $('#email_prefix').val('');
             $('#found_users').empty();
             $('#chat_pane').show();

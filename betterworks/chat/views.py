@@ -8,7 +8,7 @@ from django.views.generic import TemplateView, View
 
 from pusher import Pusher
 
-from .models import Conversation, Participant
+from .models import Conversation, Message, Participant
 
 # TODO: Move this
 pusher = Pusher(
@@ -79,31 +79,28 @@ def find_users(request):
 
 @login_required(login_url='/chat/login/')
 def get_messages(request):
-    shared_conversation = get_conversation_with_remote_email(request, request.POST['email'])
+    remote_email = request.POST['email']
+    shared_conversation = get_conversation_with_remote_email(request.user, remote_email)
     if not shared_conversation:
         # Create the new conversation
         shared_conversation = Conversation.objects.create()
         shared_conversation.participants.add(request.user.participant)
         shared_conversation.participants.add(
-            User.objects.get(username=request.POST['email']).participant
+            User.objects.get(username=remote_email).participant
         )
         shared_conversation.save()
 
     return JsonResponse({
         'messages': [
-            {
-                'email': message.participant.user.username,
-                'body': message.text,
-                'timestamp': message.timestamp.strftime('%I:%M%P, %m/%d/%Y'),
-                'from_current_user': request.user.participant == message.participant,
-            } for message in shared_conversation.message_set.all()
-        ]
+            message.as_dict() for message in shared_conversation.message_set.all()
+        ],
+        'uuid': shared_conversation.uuid,
     })
 
 @login_required(login_url='/chat/login/')
 def post_message(request):
     remote_email = request.POST['email']
-    shared_conversation = get_conversation_with_remote_email(request, remote_email)
+    shared_conversation = get_conversation_with_remote_email(request.user, remote_email)
 
     if not shared_conversation:
         return HttpResponseBadRequest("Conversation not specified or does not exist")
@@ -113,19 +110,27 @@ def post_message(request):
     if not message_text:
         return HttpResponseBadRequest("Must specify message")
 
-    shared_conversation.message_set.create(
-        participant = User.objects.get(username=remote_email).participant,
+    message = Message.objects.create(
+        conversation=shared_conversation,
+        participant=User.objects.get(username=remote_email).participant,
         text=message_text,
+    )
+    message.save()
+
+    print 'TINGLLLLLLLEYYYYYY', shared_conversation.uuid
+    pusher.trigger(
+        shared_conversation.uuid,
+        'message posted',
+        message.as_dict()
     )
     return JsonResponse({})
 
-
-def get_conversation_with_remote_email(request, remote_email):
+def get_conversation_with_remote_email(user, remote_email):
     shared_conversations = [
         user_conversation
-        for user_conversation in request.user.participant.conversation_set.all().prefetch_related('participants')
+        for user_conversation in user.participant.conversation_set.all().prefetch_related('participants')
         if (set([participant.user.username for participant in user_conversation.participants.all()]) ==
-            set([request.user.username, remote_email]))
+            set([user.username, remote_email]))
     ]
     if len(shared_conversations) > 0:
         # TODO: This should never happen; once I've finalized the project, I should enforce this
