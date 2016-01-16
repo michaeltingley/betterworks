@@ -1,4 +1,4 @@
-
+var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
 
 function makeInitiateChatLinkForEmail(email) {
   return $('<li />', {
@@ -25,18 +25,20 @@ function makeInitiateChatLinkForEmail(email) {
                       + message.body
                       + "<br>";
                 }));
-            $('#post_message').submit(function(event) {
-                event.preventDefault();
-                $.ajax({
-                    type: 'POST',
-                    url: '/chat/post_message/',
-                    data: {
-                      'csrfmiddlewaretoken': window.CSRF_TOKEN,
-                      'email': email,
-                      'message_text': $('#message_text').text(),
-                    },
+            $('#post_message')
+                .unbind()
+                .submit(function(event) {
+                    event.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: '/chat/post_message/',
+                        data: {
+                          'csrfmiddlewaretoken': window.CSRF_TOKEN,
+                          'email': email,
+                          'message_text': $('#message_text').val(),
+                        },
+                    });
                 });
-            });
           }
         });
       }

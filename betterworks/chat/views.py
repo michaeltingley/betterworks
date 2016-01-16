@@ -6,7 +6,16 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import render
 from django.views.generic import TemplateView, View
 
-from .models import Conversation, Message, Participant
+# from pusher import Pusher
+
+from .models import Conversation, Participant
+
+# TODO: Move this
+# pusher = Pusher(
+#     app_id=u'165329',
+#     key=u'f4e32bbd2ddcdaa5e41f',
+#     secret=u'6f6744195b7b081c20c0'
+# )
 
 class AboutView(TemplateView):
     template_name = "chat/about.html"
@@ -103,12 +112,11 @@ def post_message(request):
     if not message_text:
         return HttpResponseBadRequest("Must specify message")
 
-    print 'HI TINGLEY'
-    shared_conversation.message_set.add(
-        participant = User.objects.get(username=remote_email),
+    shared_conversation.message_set.create(
+        participant = User.objects.get(username=remote_email).participant,
         text=message_text,
     )
-    print 'STILL HERE'
+    return JsonResponse({})
 
 
 def get_conversation_with_remote_email(request, remote_email):
