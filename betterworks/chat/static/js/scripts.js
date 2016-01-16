@@ -1,4 +1,4 @@
-var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
+// var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
 
 function makeInitiateChatLinkForEmail(email) {
   return $('<li />', {

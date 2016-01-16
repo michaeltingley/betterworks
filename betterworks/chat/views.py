@@ -6,16 +6,16 @@ from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonRespon
 from django.shortcuts import render
 from django.views.generic import TemplateView, View
 
-# from pusher import Pusher
+from pusher import Pusher
 
 from .models import Conversation, Participant
 
 # TODO: Move this
-# pusher = Pusher(
-#     app_id=u'165329',
-#     key=u'f4e32bbd2ddcdaa5e41f',
-#     secret=u'6f6744195b7b081c20c0'
-# )
+pusher = Pusher(
+    app_id=u'165329',
+    key=u'f4e32bbd2ddcdaa5e41f',
+    secret=u'6f6744195b7b081c20c0'
+)
 
 class AboutView(TemplateView):
     template_name = "chat/about.html"
@@ -95,6 +95,7 @@ def get_messages(request):
                 'email': message.participant.user.username,
                 'body': message.text,
                 'timestamp': message.timestamp.strftime('%I:%M%P, %m/%d/%Y'),
+                'from_current_user': request.user.participant == message.participant,
             } for message in shared_conversation.message_set.all()
         ]
     })
