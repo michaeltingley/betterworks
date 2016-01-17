@@ -2,6 +2,18 @@ var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
 
 var currentlySubscribedConversation;
 
+function messageToHtml(message) {
+  message_display = "<div>" + message.body + "</div>"
+    + "<div>";
+  if (message.from_current_user) {
+    message_display += "me";
+  } else {
+    message_display += message.email;
+  }
+  message_display += " - " + message.timestamp + "<br>";
+  return message_display;
+}
+
 function makeInitiateChatLinkForEmail(email) {
   return $('<li />', {
     html: $('<a />', {
@@ -20,24 +32,13 @@ function makeInitiateChatLinkForEmail(email) {
             pusher
                 .subscribe(currentlySubscribedConversation)
                 .bind('message posted', function(message) {
-                  alert('New message: ' + message);
+                  $('#chat_messages').append(messageToHtml(message));
                 });
             $('#email_prefix').val('');
             $('#found_users').empty();
             $('#chat_pane').show();
             $('#chat_title').text('Chat with ' + email);
-            $('#chat_messages')
-                .html($.map(response.messages, function (message, i) {
-                  message_display = "<div>" + message.body + "</div>"
-                    + "<div>";
-                  if (message.from_current_user) {
-                    message_display += "me";
-                  } else {
-                    message_display += message.email;
-                  }
-                  message_display += " - " + message.timestamp + "<br>";
-                  return message_display;
-                }));
+            $('#chat_messages').append($.map(response.messages, messageToHtml));
             $('#post_message')
                 .unbind()
                 .submit(function(event) {
@@ -51,6 +52,7 @@ function makeInitiateChatLinkForEmail(email) {
                           'message_text': $('#message_text').val(),
                         },
                     });
+                    $('#message_text').val('');
                 });
           }
         });

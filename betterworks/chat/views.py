@@ -2,6 +2,7 @@ from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.db.models import Max
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView, View
@@ -22,7 +23,39 @@ class AboutView(TemplateView):
 
 @login_required(login_url='/chat/login/')
 def index(request):
-    return render(request, 'chat/index.html')
+    return render(
+        request,
+        'chat/index.html',
+        {'conversation_data': get_ordered_conversation_data(request.user)}
+    )
+
+def get_ordered_conversation_data(user):
+    return [
+        annotated_conversation_to_dict(conversation)
+        for conversation
+        in user
+            .participant
+            .conversation_set
+            .prefetch_related('participants', 'message_set')
+            .annotate(last_message_timestamp=Max('message__timestamp'))
+            .order_by('-last_message_timestamp')
+        if conversation.last_message_timestamp
+    ]
+
+def annotated_conversation_to_dict(conversation):
+    return {
+        'participant_emails': [
+            participant.user.username
+            for participant in conversation.participants.all()
+        ],
+        'last_message_timestamp': (conversation
+            .last_message_timestamp
+            .strftime('%I:%M%P, %m/%d/%Y')),
+        'last_message_text': (conversation
+            .message_set
+            .order_by('-timestamp')[0]
+            .text)
+    }
 
 def login(request):
     print request.GET
@@ -112,17 +145,16 @@ def post_message(request):
 
     message = Message.objects.create(
         conversation=shared_conversation,
-        participant=User.objects.get(username=remote_email).participant,
+        participant=request.user.participant,
         text=message_text,
     )
-    message.save()
 
-    print 'TINGLLLLLLLEYYYYYY', shared_conversation.uuid
     pusher.trigger(
-        shared_conversation.uuid,
+        str(shared_conversation.uuid),
         'message posted',
         message.as_dict()
     )
+    message.save()
     return JsonResponse({})
 
 def get_conversation_with_remote_email(user, remote_email):

@@ -12,7 +12,7 @@
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand" href="http://getbootstrap.com/examples/dashboard/#">Chats</a>
+      <a class="navbar-brand">Chats</a>
     </div>
   </div>
 </nav>
@@ -21,16 +21,29 @@
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
-				<form id="find_users" method="post">
-				  {% csrf_token %}
-				  <input id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
-				  <input type="submit" value="Search" />
-				</form>
-				<ul id="found_users"></ul>
-				<form action="{% url 'chat:logout' %}" method="post">
-	  			{% csrf_token %}
-	  			<input type="submit" value="Logout" />
-				</form>
+        <li>
+          <form id="find_users" method="post">
+            {% csrf_token %}
+            <input id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
+            <input type="submit" value="Search" />
+          </form>
+          <ul id="found_users"></ul>
+        </li>
+        {% for conversation_datum in conversation_data %}
+          <li>{{ conversation_datum.last_message_text }}</li>
+          <li>
+            {% for participant_email in conversation_datum.participant_emails %}
+              {{ participant_email }}
+            {% endfor %}
+          </li>
+          <li>{{ conversation_datum.last_message_timestamp }}</li>
+        {% endfor %}
+        <li>
+          <form action="{% url 'chat:logout' %}" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Logout" />
+          </form>
+        </li>
 			</ul>
 		</div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

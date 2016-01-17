@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-import uuid
+from uuid import uuid4
 
 class Participant(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -11,7 +11,7 @@ class Participant(models.Model):
 
 class Conversation(models.Model):
     participants = models.ManyToManyField(Participant)
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False)
+    uuid = models.UUIDField(default=uuid4, editable=False)
 
     def __repr__(self):
         return "Conversation(" + str(self.participants) + ")"
