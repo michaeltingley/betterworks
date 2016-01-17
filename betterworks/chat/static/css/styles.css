@@ -73,7 +73,19 @@ body {
   margin-top: 0;
 }
 
-.panel {
-  width: auto;
+ul#chat_messages {
+  list-style-type: none;
+  padding-left: 0; /* overriding default left padding */
 }
 
+.bubble-outgoing {
+  text-align: right;
+}
+
+.bubble-incoming {
+  text-align: left;
+}
+
+span {
+  display: inline-block;
+}

@@ -3,14 +3,15 @@ var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
 var currentlySubscribedConversation;
 
 function messageToHtml(message) {
-  message_display = "<div>" + message.body + "</div>"
-    + "<div>";
-  if (message.from_current_user) {
-    message_display += "me";
-  } else {
-    message_display += message.email;
-  }
-  message_display += " - " + message.timestamp + "<br>";
+  var isUserMe = message.email == user_email;
+  var message_display_class = isUserMe ? "bubble-outgoing" : "bubble-incoming";
+  message_display = "<div class=\" bubble " + message_display_class + "\">"
+    + "<li>"
+    + "<div>"
+    + "<span class=\"panel panel-default\">" + message.body + "</span></div>"
+    + "<span>" + (isUserMe ? "me" : message.email)
+    + " - " + message.timestamp + "</span>"
+    + "</li>";
   return message_display;
 }
 
