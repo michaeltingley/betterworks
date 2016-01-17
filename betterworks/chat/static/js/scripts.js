@@ -15,55 +15,71 @@ function messageToHtml(message) {
   return message_display;
 }
 
+function createSetActiveConversationFunction(email) {
+  return function() {
+    $.ajax({
+      type: 'POST',
+      url: '/chat/get_messages/',
+      data: {
+        'csrfmiddlewaretoken': window.CSRF_TOKEN,
+        'email': email,
+      },
+      success: function(response) {
+        pusher.unsubscribe(currentlySubscribedConversation);
+
+        $('#chat_messages')
+            .empty()
+            .append($.map(response.messages, messageToHtml));
+
+        currentlySubscribedConversation = response.uuid;
+        pusher
+            .subscribe(currentlySubscribedConversation)
+            .bind('message posted', function(message) {
+              $('#chat_messages').append(messageToHtml(message));
+            });
+        $('#email_prefix').val('');
+        $('#found_users').empty();
+        $('#chat_pane').show();
+        $('#chat_title').text('Chat with ' + email);
+        $('#post_message')
+            .unbind()
+            .submit(function(event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '/chat/post_message/',
+                    data: {
+                      'csrfmiddlewaretoken': window.CSRF_TOKEN,
+                      'email': email,
+                      'message_text': $('#message_text').val(),
+                    },
+                });
+                $('#message_text').val('');
+            });
+      }
+    });
+  };
+}
+
 function makeInitiateChatLinkForEmail(email) {
   return $('<li />', {
     html: $('<a />', {
       text: email,
-      click: function() {
-        $.ajax({
-          type: 'POST',
-          url: '/chat/get_messages/',
-          data: {
-            'csrfmiddlewaretoken': window.CSRF_TOKEN,
-            'email': email,
-          },
-          success: function(response) {
-            pusher.unsubscribe(currentlySubscribedConversation);
-            currentlySubscribedConversation = response.uuid;
-            pusher
-                .subscribe(currentlySubscribedConversation)
-                .bind('message posted', function(message) {
-                  $('#chat_messages').append(messageToHtml(message));
-                });
-            $('#email_prefix').val('');
-            $('#found_users').empty();
-            $('#chat_pane').show();
-            $('#chat_title').text('Chat with ' + email);
-            $('#chat_messages').append($.map(response.messages, messageToHtml));
-            $('#post_message')
-                .unbind()
-                .submit(function(event) {
-                    event.preventDefault();
-                    $.ajax({
-                        type: 'POST',
-                        url: '/chat/post_message/',
-                        data: {
-                          'csrfmiddlewaretoken': window.CSRF_TOKEN,
-                          'email': email,
-                          'message_text': $('#message_text').val(),
-                        },
-                    });
-                    $('#message_text').val('');
-                });
-          }
-        });
-      }
+      click: createSetActiveConversationFunction(email),
     })
   });
 }
 
 function renderConversation(conversation) {
-  console.log(conversation);
+  participant_email = conversation.participant_emails.find(function(email) {
+    return email != user_email;
+  });
+  return $('<li />', {
+    html: conversation.last_message_text + '<br />'
+        + '<b>' + participant_email + '</b> - '
+        + conversation.last_message_timestamp,
+    click: createSetActiveConversationFunction(participant_email),
+  });
 }
 
 $(function() {
