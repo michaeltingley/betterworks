@@ -23,11 +23,13 @@ class AboutView(TemplateView):
 
 @login_required(login_url='/chat/login/')
 def index(request):
-    return render(
-        request,
-        'chat/index.html',
-        {'conversation_data': get_ordered_conversation_data(request.user)}
-    )
+    return render(request, 'chat/index.html')
+
+@login_required(login_url='/chat/login/')
+def get_conversations(request):
+    return JsonResponse({
+        'conversations': get_ordered_conversation_data(request.user)
+    })
 
 def get_ordered_conversation_data(user):
     return [

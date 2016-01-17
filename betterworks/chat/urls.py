@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^find_users/$', views.find_users, name='find_users'),
     url(r'^get_messages/$', views.get_messages, name='get_messages'),
     url(r'^post_message/$', views.post_message, name='post_message'),
+    url(r'^get_conversations/$', views.get_conversations, name='get_conversations'),
     # url(r'^login_or_sign_up/$', views.login_or_sign_up, name='login_or_sign_up'),
     # url(r'^login$', views.login, name='login'),
 ]

@@ -61,6 +61,10 @@ function makeInitiateChatLinkForEmail(email) {
   });
 }
 
+function renderConversation(conversation) {
+  console.log(conversation);
+}
+
 $(function() {
   $('#find_users').submit(function(event) {
     event.preventDefault();
@@ -69,11 +73,18 @@ $(function() {
       url: '/chat/find_users/',
       data: $('#find_users').serialize(),
       success: function(response) {
-        $('#found_users')
-            .html($.map(response.emails, function (email, i) {
-              return makeInitiateChatLinkForEmail(email);
-            }));
+        $('#found_users').html($.map(response.emails, makeInitiateChatLinkForEmail));
       }
     });
+  });
+  $.ajax({
+    type: 'POST',
+    url: '/chat/get_conversations/',
+    data: {
+      'csrfmiddlewaretoken': window.CSRF_TOKEN,
+    },
+    success: function(response) {
+      $('#conversations').html($.map(response.conversations, renderConversation));
+    }
   });
 });

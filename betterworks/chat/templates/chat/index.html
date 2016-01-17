@@ -5,9 +5,11 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
-<script type="text/javascript">window.CSRF_TOKEN = "{{ csrf_token }}"; </script>
+<script type="text/javascript">window.CSRF_TOKEN = "{{ csrf_token }}";</script>
 <script src="{% static 'js/scripts.js' %}"></script>
-<script type="text/javascript">user_email = "{{ request.user.username }}"; </script>
+<script type="text/javascript">
+  user_email = "{{ request.user.username }}";
+</script>
 
 <nav class="navbar navbar-inverse navbar-fixed-top">
   <div class="container-fluid">
@@ -29,7 +31,8 @@
           </form>
           <ul id="found_users"></ul>
         </li>
-        {% for conversation_datum in conversation_data %}
+        <li id="conversations"></li>
+        <!-- {% for conversation_datum in conversation_data %}
           <li>{{ conversation_datum.last_message_text }}</li>
           <li>
             {% for participant_email in conversation_datum.participant_emails %}
@@ -37,7 +40,7 @@
             {% endfor %}
           </li>
           <li>{{ conversation_datum.last_message_timestamp }}</li>
-        {% endfor %}
+        {% endfor %} -->
         <li>
           <form action="{% url 'chat:logout' %}" method="post">
             {% csrf_token %}
