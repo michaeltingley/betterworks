@@ -11,26 +11,29 @@
 </script>
 <script src="{% static 'js/scripts.js' %}"></script>
 
-<nav class="navbar navbar-inverse navbar-fixed-top">
-  <div class="container-fluid">
-    <div class="navbar-header">
-      <div id="page_header" class="navbar-brand">Chats</div>
-    </div>
-  </div>
+<nav class="navbar navbar-default navbar-fixed-top">
+	<div id="navbar" class="navbar-collapse collapse">
+		<ul class="nav navbar-nav">
+			<li>
+				<form class="navbar-form" id="find_users" method="post">
+            {% csrf_token %}
+            <input class="form-control" id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
+				</form>
+			</li>
+		</ul>
+    <ul class="nav navbar-nav navbar-right">
+			<li>
+	      <div class="navbar-brand" id="page_header">Chats</div>
+			</li>
+		</ul>
+	</div>
 </nav>
 
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-3 col-md-2 sidebar">
       <ul class="nav nav-sidebar">
-        <li>
-          <form id="find_users" method="post">
-            {% csrf_token %}
-            <input id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
-            <input type="submit" value="Search" />
-          </form>
-          <ul id="found_users"></ul>
-        </li>
+        <ul id="found_users"></ul>
         <li id="conversations"></li>
         <li>
           <form action="{% url 'chat:logout' %}" method="post">
@@ -42,7 +45,6 @@
 		</div>
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 			<div id="chat_pane" class="collapse">
-			  <h2 id="chat_title"></h2>
 			  <ul id="chat_messages"></ul>
 			  <form id="post_message" method="post">
 			    {% csrf_token %}
