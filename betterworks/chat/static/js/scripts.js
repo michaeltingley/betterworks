@@ -4,11 +4,9 @@ var currentConversationEmail;
 
 function messageToHtml(message) {
   var isUserMe = message.email == USER_EMAIL;
-  message_display = "<li class=\"" 
+  message_display = "<li class=\""
     + (isUserMe ? "message-outgoing" : "message-incoming") + "\">"
-    + "<span class=\"bubble panel "
-    + (isUserMe ? "bubble-outgoing" : "bubble-incoming") + "\">"
-    + message.body + "</span>"
+    + "<span class=\"bubble panel panel-default\">" + message.body + "</span>"
     + "<br>"
     + "<span class=\"bubble-details\">" + (isUserMe ? "me" : message.email)
     + " - " + message.timestamp + "</span>"
@@ -26,15 +24,13 @@ function createSetActiveConversationFunction(email) {
         'email': email,
       },
       success: function(response) {
-        $('#chat_messages')
-            .empty()
-            .append($.map(response.messages, messageToHtml));
-
         currentConversationEmail = email;
+
+        $('#chat_messages').empty().append($.map(response.messages, messageToHtml));
         $('#email_prefix').val('');
         $('#found_users').empty();
         $('#chat_pane').show();
-        $('#page_header').text(email);
+        $('#chat_title').text('Chat with ' + email);
         $('#post_message')
             .unbind()
             .submit(function(event) {
@@ -50,6 +46,7 @@ function createSetActiveConversationFunction(email) {
                 });
                 $('#message_text').val('');
             });
+        window.scrollTo(0,document.body.scrollHeight);
       }
     });
   };
@@ -116,6 +113,7 @@ $(function() {
         $('#conversations').prepend(renderConversation(conversation));
         if (participantEmail == currentConversationEmail) {
           $('#chat_messages').append(messageToHtml(conversation.last_message));
+          window.scrollTo(0, document.body.scrollHeight);
         }
       });
 });
