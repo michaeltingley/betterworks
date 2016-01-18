@@ -1,14 +1,12 @@
-var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
+var pusher = new Pusher('f4e32bbd2ddcdaa5e41f', { authEndpoint: '/chat/pusher_auth/' });
 
-var currentlySubscribedConversation;
+var currentConversationEmail;
 
 function messageToHtml(message) {
-  var isUserMe = message.email == user_email;
-  message_display = "<li class=\"" 
+  var isUserMe = message.email == USER_EMAIL;
+  message_display = "<li class=\""
     + (isUserMe ? "message-outgoing" : "message-incoming") + "\">"
-    + "<span class=\"bubble panel "
-    + (isUserMe ? "bubble-outgoing" : "bubble-incoming") + "\">"
-    + message.body + "</span>"
+    + "<span class=\"bubble panel panel-default\">" + message.body + "</span>"
     + "<br>"
     + "<span class=\"bubble-details\">" + (isUserMe ? "me" : message.email)
     + " - " + message.timestamp + "</span>"
@@ -22,26 +20,19 @@ function createSetActiveConversationFunction(email) {
       type: 'POST',
       url: '/chat/get_messages/',
       data: {
-        'csrfmiddlewaretoken': window.CSRF_TOKEN,
+        'csrfmiddlewaretoken': CSRF_TOKEN,
         'email': email,
       },
       success: function(response) {
-        pusher.unsubscribe(currentlySubscribedConversation);
-
         $('#chat_messages')
             .empty()
             .append($.map(response.messages, messageToHtml));
 
-        currentlySubscribedConversation = response.uuid;
-        pusher
-            .subscribe(currentlySubscribedConversation)
-            .bind('message posted', function(message) {
-              $('#chat_messages').append(messageToHtml(message));
-            });
+        currentConversationEmail = email;
         $('#email_prefix').val('');
         $('#found_users').empty();
         $('#chat_pane').show();
-        $('#page_header').text(email);
+        $('#chat_title').text('Chat with ' + email);
         $('#post_message')
             .unbind()
             .submit(function(event) {
@@ -50,7 +41,7 @@ function createSetActiveConversationFunction(email) {
                     type: 'POST',
                     url: '/chat/post_message/',
                     data: {
-                      'csrfmiddlewaretoken': window.CSRF_TOKEN,
+                      'csrfmiddlewaretoken': CSRF_TOKEN,
                       'email': email,
                       'message_text': $('#message_text').val(),
                     },
@@ -71,14 +62,20 @@ function makeInitiateChatLinkForEmail(email) {
   });
 }
 
-function renderConversation(conversation) {
-  participant_email = conversation.participant_emails.find(function(email) {
-    return email != user_email;
+function getRecipientEmailFromConversation(conversation) {
+  return conversation.participant_emails.find(function(email) {
+    return email != USER_EMAIL;
   });
+}
+
+function renderConversation(conversation) {
+  participant_email = getRecipientEmailFromConversation(conversation);
   return $('<li />', {
-    html: conversation.last_message_text + '<br />'
+    id: 'conversation-' + participant_email,
+    html: (conversation.last_message.email == USER_EMAIL ? "You: " :"")
+        + conversation.last_message.body + '<br />'
         + '<b>' + participant_email + '</b> - '
-        + conversation.last_message_timestamp,
+        + conversation.last_message.timestamp,
     click: createSetActiveConversationFunction(participant_email),
   });
 }
@@ -99,10 +96,20 @@ $(function() {
     type: 'POST',
     url: '/chat/get_conversations/',
     data: {
-      'csrfmiddlewaretoken': window.CSRF_TOKEN,
+      'csrfmiddlewaretoken': CSRF_TOKEN,
     },
     success: function(response) {
       $('#conversations').html($.map(response.conversations, renderConversation));
     }
   });
+  pusher
+      .subscribe('private-participant-' + USER_EMAIL)
+      .bind('conversation updated', function(conversation) {
+        participant_email = getRecipientEmailFromConversation(conversation);
+        // $('#conversation-' + participant_email).remove();
+        $('#conversations').prepend(renderConversation(conversation));
+        if (participant_email == currentConversationEmail) {
+          $('#chat_messages').append(messageToHtml(conversation.last_message));
+        }
+      });
 });
