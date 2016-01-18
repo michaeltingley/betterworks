@@ -78,14 +78,27 @@ ul#chat_messages {
   padding-left: 0; /* overriding default left padding */
 }
 
-.bubble-outgoing {
+.message-outgoing {
   text-align: right;
 }
 
-.bubble-incoming {
+.message-incoming {
   text-align: left;
 }
 
 span {
   display: inline-block;
 }
+
+.bubble {
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 0px;
+}
+
+.bubble-details {
+  margin-bottom: 5px;
+}
+

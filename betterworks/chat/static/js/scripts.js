@@ -4,12 +4,11 @@ var currentlySubscribedConversation;
 
 function messageToHtml(message) {
   var isUserMe = message.email == user_email;
-  var message_display_class = isUserMe ? "bubble-outgoing" : "bubble-incoming";
-  message_display = "<div class=\" bubble " + message_display_class + "\">"
-    + "<li>"
-    + "<div>"
-    + "<span class=\"panel panel-default\">" + message.body + "</span></div>"
-    + "<span>" + (isUserMe ? "me" : message.email)
+  message_display = "<li class=\"" 
+    + (isUserMe ? "message-outgoing" : "message-incoming") + "\">"
+    + "<span class=\"bubble panel panel-default\">" + message.body + "</span>"
+    + "<br>"
+    + "<span class=\"bubble-details\">" + (isUserMe ? "me" : message.email)
     + " - " + message.timestamp + "</span>"
     + "</li>";
   return message_display;
