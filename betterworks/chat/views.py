@@ -34,7 +34,7 @@ def get_conversations(request):
 
 def get_ordered_conversation_data(user):
     return [
-        annotated_conversation_to_dict(conversation)
+        conversation.as_dict()
         for conversation
         in user
             .participant
@@ -44,21 +44,6 @@ def get_ordered_conversation_data(user):
             .order_by('-last_message_timestamp')
         if conversation.last_message_timestamp
     ]
-
-def annotated_conversation_to_dict(conversation):
-    return {
-        'participant_emails': [
-            participant.user.username
-            for participant in conversation.participants.all()
-        ],
-        'last_message_timestamp': (conversation
-            .last_message_timestamp
-            .strftime('%I:%M%P, %m/%d/%Y')),
-        'last_message_text': (conversation
-            .message_set
-            .order_by('-timestamp')[0]
-            .text)
-    }
 
 def login(request):
     print request.GET
@@ -72,15 +57,15 @@ class LoginView(View):
     def post(self, request, *args, **kwargs):
         email = request.POST['email']
         if not email:
-            return self.login_failed(request, 'Email must not be blank.')
+            return login_failed(request, 'Email must not be blank.')
 
         password = request.POST['password']
         if not email:
-            return self.login_failed(request, 'Password must not be blank.')
+            return login_failed(request, 'Password must not be blank.')
 
         if request.POST['action'] == 'Sign up':
             if User.objects.filter(username=email).exists():
-                return self.login_failed(
+                return login_failed(
                     request,
                     "The provided username already exists. Try logging in."
                 )
@@ -91,15 +76,15 @@ class LoginView(View):
             Participant.objects.create(user=created_user)
         user = auth.authenticate(username=email, password=password)
         if user is None:
-            return self.login_failed(
+            return login_failed(
                 request,
                 "Your username and password didn't match. Please try again."
             )
         auth.login(request, user)
         return HttpResponseRedirect(reverse('chat:index'))
 
-    def login_failed(self, request, error):
-        return render(request, 'chat/login.html', {'error': error})
+def login_failed(request, error):
+    return render(request, 'chat/login.html', {'error': error})
 
 def logout(request):
     auth.logout(request)
@@ -131,16 +116,20 @@ def get_messages(request):
             message.as_dict()
             for message in shared_conversation.message_set.all()
         ],
-        'id': shared_conversation.id,
     })
 
 @login_required(login_url='/chat/login/')
 def post_message(request):
     remote_email = request.POST['email']
-    shared_conversation = get_conversation_with_remote_email(request.user, remote_email)
+    shared_conversation = get_conversation_with_remote_email(
+        request.user,
+        remote_email
+    )
 
     if not shared_conversation:
-        return HttpResponseBadRequest("Conversation not specified or does not exist")
+        return HttpResponseBadRequest(
+            "Conversation not specified or does not exist"
+        )
 
     message_text = request.POST['message_text']
 
@@ -153,37 +142,27 @@ def post_message(request):
         text=message_text,
     )
 
-    pusher.trigger(
-        'private-conversation-' + str(shared_conversation.id),
-        'message posted',
-        message.as_dict()
-    )
-    message.save()
+    for participant in shared_conversation.participants.all():
+        pusher.trigger(
+            'private-participant-' + participant.user.username,
+            'conversation updated',
+            shared_conversation.as_dict()
+        )
     return JsonResponse({})
 
 @login_required(login_url='/chat/login/')
 @csrf_exempt
 def pusher_auth(request):
-    participant = request.user.participant
-    channel = request.POST['channel_name']
-    (_, resource, resource_id) = channel.split('-')
+    (_, resource, resource_id) = request.POST['channel_name'].split('-')
 
-    if (resource == 'conversation' and
-        not participant
-            .conversation_set
-            .filter(id=resource_id)
-            .exists()):
+    if (resource == 'participant'
+            and not request.user.username == resource_id):
         return HttpResponseBadRequest(
-            'User not permitted to subscribe to conversation'
-        )
-
-    if resource == 'conversations' and not participant.id == resource_id:
-        return HttpResponseBadRequest(
-            'User not permitted to subscribe to conversations'
+            'User not permitted to subscribe to participant updates'
         )
 
     return JsonResponse(pusher.authenticate(
-        channel=channel,
+        channel=request.POST['channel_name'],
         socket_id=request.POST['socket_id'],
     ))
 

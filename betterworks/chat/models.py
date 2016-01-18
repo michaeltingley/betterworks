@@ -12,6 +12,18 @@ class Participant(models.Model):
 class Conversation(models.Model):
     participants = models.ManyToManyField(Participant)
 
+    def as_dict(self):
+        '''Converts to dict with info about the latest message'''
+        return {
+            'participant_emails': [
+                participant.user.username
+                for participant in self.participants.all()
+            ],
+            'last_message': (
+                self.message_set.order_by('-timestamp')[0].as_dict()
+            )
+        }
+
     def __repr__(self):
         return "Conversation(" + str(self.participants) + ")"
 
