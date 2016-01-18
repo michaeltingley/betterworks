@@ -11,7 +11,6 @@ class Participant(models.Model):
 
 class Conversation(models.Model):
     participants = models.ManyToManyField(Participant)
-    uuid = models.UUIDField(default=uuid4, editable=False)
 
     def __repr__(self):
         return "Conversation(" + str(self.participants) + ")"

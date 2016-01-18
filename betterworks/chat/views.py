@@ -5,6 +5,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Max
 from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, View
 
 from pusher import Pusher
@@ -127,9 +128,10 @@ def get_messages(request):
 
     return JsonResponse({
         'messages': [
-            message.as_dict() for message in shared_conversation.message_set.all()
+            message.as_dict()
+            for message in shared_conversation.message_set.all()
         ],
-        'uuid': shared_conversation.uuid,
+        'id': shared_conversation.id,
     })
 
 @login_required(login_url='/chat/login/')
@@ -152,12 +154,38 @@ def post_message(request):
     )
 
     pusher.trigger(
-        str(shared_conversation.uuid),
+        'private-conversation-' + str(shared_conversation.id),
         'message posted',
         message.as_dict()
     )
     message.save()
     return JsonResponse({})
+
+@login_required(login_url='/chat/login/')
+@csrf_exempt
+def pusher_auth(request):
+    participant = request.user.participant
+    channel = request.POST['channel_name']
+    (_, resource, resource_id) = channel.split('-')
+
+    if (resource == 'conversation' and
+        not participant
+            .conversation_set
+            .filter(id=resource_id)
+            .exists()):
+        return HttpResponseBadRequest(
+            'User not permitted to subscribe to conversation'
+        )
+
+    if resource == 'conversations' and not participant.id == resource_id:
+        return HttpResponseBadRequest(
+            'User not permitted to subscribe to conversations'
+        )
+
+    return JsonResponse(pusher.authenticate(
+        channel=channel,
+        socket_id=request.POST['socket_id'],
+    ))
 
 def get_conversation_with_remote_email(user, remote_email):
     shared_conversations = [

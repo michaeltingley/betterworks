@@ -1,10 +1,10 @@
-var pusher = new Pusher('f4e32bbd2ddcdaa5e41f');
+var pusher = new Pusher('f4e32bbd2ddcdaa5e41f', { authEndpoint: '/chat/pusher_auth/' });
 
 var currentlySubscribedConversation;
 
 function messageToHtml(message) {
-  var isUserMe = message.email == user_email;
-  message_display = "<li class=\"" 
+  var isUserMe = message.email == USER_EMAIL;
+  message_display = "<li class=\""
     + (isUserMe ? "message-outgoing" : "message-incoming") + "\">"
     + "<span class=\"bubble panel panel-default\">" + message.body + "</span>"
     + "<br>"
@@ -20,19 +20,19 @@ function createSetActiveConversationFunction(email) {
       type: 'POST',
       url: '/chat/get_messages/',
       data: {
-        'csrfmiddlewaretoken': window.CSRF_TOKEN,
+        'csrfmiddlewaretoken': CSRF_TOKEN,
         'email': email,
       },
       success: function(response) {
-        pusher.unsubscribe(currentlySubscribedConversation);
+        pusher.unsubscribe('private-conversation-' + currentlySubscribedConversation);
 
         $('#chat_messages')
             .empty()
             .append($.map(response.messages, messageToHtml));
 
-        currentlySubscribedConversation = response.uuid;
+        currentlySubscribedConversation = response.id;
         pusher
-            .subscribe(currentlySubscribedConversation)
+            .subscribe('private-conversation-' + currentlySubscribedConversation)
             .bind('message posted', function(message) {
               $('#chat_messages').append(messageToHtml(message));
             });
@@ -48,7 +48,7 @@ function createSetActiveConversationFunction(email) {
                     type: 'POST',
                     url: '/chat/post_message/',
                     data: {
-                      'csrfmiddlewaretoken': window.CSRF_TOKEN,
+                      'csrfmiddlewaretoken': CSRF_TOKEN,
                       'email': email,
                       'message_text': $('#message_text').val(),
                     },
@@ -71,7 +71,7 @@ function makeInitiateChatLinkForEmail(email) {
 
 function renderConversation(conversation) {
   participant_email = conversation.participant_emails.find(function(email) {
-    return email != user_email;
+    return email != USER_EMAIL;
   });
   return $('<li />', {
     html: conversation.last_message_text + '<br />'
@@ -97,7 +97,7 @@ $(function() {
     type: 'POST',
     url: '/chat/get_conversations/',
     data: {
-      'csrfmiddlewaretoken': window.CSRF_TOKEN,
+      'csrfmiddlewaretoken': CSRF_TOKEN,
     },
     success: function(response) {
       $('#conversations').html($.map(response.conversations, renderConversation));
