@@ -77,21 +77,20 @@ function getRecipientEmailFromConversation(conversation) {
   });
 }
 
-function getConversationId(conversation) {
-  return '';
-  // return getRecipientEmailFromConversation(conversation);
+function getConversationId(participantEmail) {
+  return 'conversation-' + participantEmail.replace(/\W+/g, "_");
 }
 
 function renderConversation(conversation) {
-  participant_email = getRecipientEmailFromConversation(conversation);
+  participantEmail = getRecipientEmailFromConversation(conversation);
   return $('<tr />', {
-    id: 'conversation-' + participant_email,
-    html: (conversation.last_message.email 
-        == USER_EMAIL ? USER_META_REFERENCE + ": " :"")
+    id: getConversationId(participantEmail),
+    html: (conversation.last_message.email == USER_EMAIL 
+        ? USER_META_REFERENCE + ": " : "")
         + conversation.last_message.body + '<br />'
-        + '<b>' + participant_email + '</b> - '
+        + '<b>' + participantEmail + '</b> - '
         + conversation.last_message.timestamp,
-    click: createSetActiveConversationFunction(participant_email),
+    click: createSetActiveConversationFunction(participantEmail),
   });
 }
 
@@ -120,10 +119,10 @@ $(function() {
   pusher
       .subscribe('private-participant-' + USER_EMAIL)
       .bind('conversation updated', function(conversation) {
-        participant_email = getRecipientEmailFromConversation(conversation);
-        // $('#conversation-' + participant_email).remove();
+        participantEmail = getRecipientEmailFromConversation(conversation);
+        $('#' + getConversationId(participantEmail)).remove();
         $('#conversations').prepend(renderConversation(conversation));
-        if (participant_email == currentConversationEmail) {
+        if (participantEmail == currentConversationEmail) {
           $('#chat_messages').append(messageToHtml(conversation.last_message));
         }
       });
