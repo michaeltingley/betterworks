@@ -1,19 +1,26 @@
 var pusher = new Pusher('f4e32bbd2ddcdaa5e41f', { authEndpoint: '/chat/pusher_auth/' });
+var USER_META_REFERENCE = "You"
 
 var currentConversationEmail;
 
 function messageToHtml(message) {
   var isUserMe = message.email == USER_EMAIL;
-  message_display = "<li class=\"" 
-    + (isUserMe ? "message-outgoing" : "message-incoming") + "\">"
-    + "<span class=\"bubble panel "
-    + (isUserMe ? "bubble-outgoing" : "bubble-incoming") + "\">"
-    + message.body + "</span>"
-    + "<br>"
-    + "<span class=\"bubble-details\">" + (isUserMe ? "me" : message.email)
-    + " - " + message.timestamp + "</span>"
-    + "</li>";
-  return message_display;
+  return $('<li />', {
+    class: (isUserMe ? "message-outgoing" : "message-incoming"),
+    html: [
+      $('<span />', {
+        class: 'bubble panel ' 
+          + (isUserMe ? "bubble-outgoing" : "bubble-incoming"),
+        html: message.body
+      }),
+      $('<br>'),
+      $('<span />', {
+        class: 'bubble-details',
+        html: (isUserMe ? USER_META_REFERENCE : message.email)
+          + " &#8226; " + message.timestamp
+      })
+    ]
+  });
 }
 
 function createSetActiveConversationFunction(email) {
@@ -77,9 +84,10 @@ function getConversationId(conversation) {
 
 function renderConversation(conversation) {
   participant_email = getRecipientEmailFromConversation(conversation);
-  return $('<li />', {
+  return $('<tr />', {
     id: 'conversation-' + participant_email,
-    html: (conversation.last_message.email == USER_EMAIL ? "You: " :"")
+    html: (conversation.last_message.email 
+        == USER_EMAIL ? USER_META_REFERENCE + ": " :"")
         + conversation.last_message.body + '<br />'
         + '<b>' + participant_email + '</b> - '
         + conversation.last_message.timestamp,
