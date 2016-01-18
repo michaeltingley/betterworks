@@ -70,6 +70,11 @@ function getRecipientEmailFromConversation(conversation) {
   });
 }
 
+function getConversationId(conversation) {
+  return '';
+  // return getRecipientEmailFromConversation(conversation);
+}
+
 function renderConversation(conversation) {
   participant_email = getRecipientEmailFromConversation(conversation);
   return $('<li />', {
