@@ -4,9 +4,11 @@ var currentConversationEmail;
 
 function messageToHtml(message) {
   var isUserMe = message.email == USER_EMAIL;
-  message_display = "<li class=\""
+  message_display = "<li class=\"" 
     + (isUserMe ? "message-outgoing" : "message-incoming") + "\">"
-    + "<span class=\"bubble panel panel-default\">" + message.body + "</span>"
+    + "<span class=\"bubble panel "
+    + (isUserMe ? "bubble-outgoing" : "bubble-incoming") + "\">"
+    + message.body + "</span>"
     + "<br>"
     + "<span class=\"bubble-details\">" + (isUserMe ? "me" : message.email)
     + " - " + message.timestamp + "</span>"
@@ -32,7 +34,7 @@ function createSetActiveConversationFunction(email) {
         $('#email_prefix').val('');
         $('#found_users').empty();
         $('#chat_pane').show();
-        $('#chat_title').text('Chat with ' + email);
+        $('#page_header').text(email);
         $('#post_message')
             .unbind()
             .submit(function(event) {
