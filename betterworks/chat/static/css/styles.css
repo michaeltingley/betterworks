@@ -15,6 +15,15 @@ body {
   border: 0;
 }
 
+.navbar-right {
+  margin-right: 10px;
+}
+
+#page_header {
+  height: auto;
+  text-align: center;
+  color: #5e5e5e;
+}
 /*
  * Sidebar
  */
@@ -99,15 +108,17 @@ span {
 }
 
 .bubble-incoming {
-  background-color: efefef;
+  background-color: #efefef;
 }
 
 .bubble-outgoing {
-  background-color: 800000;
-  color: ffffff;
+  background-color: #800000;
+  color: #ffffff;
 }
 
 .bubble-details {
   margin-bottom: 5px;
+  font-size: x-small;
+  color: #ababab;
 }
 
