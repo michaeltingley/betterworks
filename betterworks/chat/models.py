@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
 
@@ -38,8 +40,16 @@ class Message(models.Model):
         return {
             'email': self.participant.user.username,
             'body': self.text,
-            'timestamp': self.timestamp.strftime('%I:%M%P, %m/%d/%Y'),
+            'timestamp': format_instant(self.timestamp),
         }
 
     def __repr__(self):
         return "Message(text=" + self.text + ", timestamp=" + str(self.timestamp) + ")"
+
+def format_instant(instant):
+    now = datetime.now()
+    if instant.year != now.year:
+        return instant.strftime('%-I:%M%P, %b %d, %Y')
+    if instant.month != now.month or instant.day != now.day:
+        return instant.strftime('%-I:%M%P, %b %d')
+    return instant.strftime('%-I:%M%P')

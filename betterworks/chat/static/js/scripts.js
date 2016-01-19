@@ -33,8 +33,13 @@ function createSetActiveConversationFunction(email) {
         'email': email,
       },
       success: function(response) {
+        location.hash = email
+        $('.conversation-selected').removeClass('conversation-selected');
+
         currentConversationEmail = email;
 
+        $('#' + getConversationId(currentConversationEmail)).addClass('conversation-selected');
+        $('#page_header').text(currentConversationEmail);
         $('#chat_messages').empty().append($.map(response.messages, messageToHtml));
         $('#email_prefix').val('');
         $('#found_users').empty();
@@ -84,12 +89,26 @@ function renderConversation(conversation) {
   participantEmail = getRecipientEmailFromConversation(conversation);
   return $('<tr />', {
     id: getConversationId(participantEmail),
-    html: (conversation.last_message.email == USER_EMAIL
-        ? USER_META_REFERENCE + ": " : "")
-        + conversation.last_message.body + '<br />'
-        + '<b>' + participantEmail + '</b> - '
-        + conversation.last_message.timestamp,
     click: createSetActiveConversationFunction(participantEmail),
+    html: $('<div />', {
+        class: 'conversation-entry',
+        html: [
+            $('<span />', {
+                class: 'conversation-email',
+                html: participantEmail,
+            }),
+            $('<span />', {
+                class: 'conversation-timestamp',
+                html: conversation.last_message.timestamp,
+            }),
+            $('<br />'),
+            $('<span />', {
+                class: 'conversation-snippet',
+                html: (conversation.last_message.email == USER_EMAIL ? USER_META_REFERENCE + ": " : "")
+                    + conversation.last_message.body,
+            }),
+        ],
+    }),
   });
 }
 
@@ -126,4 +145,7 @@ $(function() {
           window.scrollTo(0, document.body.scrollHeight);
         }
       });
+  if (location.hash) {
+    createSetActiveConversationFunction(location.hash.substring(1))();
+  }
 });

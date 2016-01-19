@@ -12,21 +12,21 @@
 <script src="{% static 'js/scripts.js' %}"></script>
 
 <nav class="navbar navbar-default navbar-fixed-top">
-	<div id="navbar" class="navbar-collapse collapse">
-		<ul class="nav navbar-nav">
-			<li>
-				<form class="navbar-form" id="find_users" method="post">
-            {% csrf_token %}
-            <input class="form-control" id="email_prefix" name="email_prefix" type="text" placeholder="Email" />
-				</form>
-			</li>
-		</ul>
+  <div id="navbar" class="navbar-collapse collapse">
+    <ul class="nav navbar-nav">
+      <li>
+        <form class="navbar-form" id="find_users" method="post">
+          {% csrf_token %}
+          <input class="form-control" id="email_prefix" name="email_prefix" type="text" placeholder="Search by email" />
+        </form>
+      </li>
+    </ul>
     <ul class="nav navbar-nav navbar-right">
-			<li>
-	      <div class="navbar-brand" id="page_header">Chats</div>
-			</li>
-		</ul>
-	</div>
+      <li>
+        <div class="navbar-brand" id="page_header">Chats</div>
+      </li>
+    </ul>
+  </div>
 </nav>
 
 <div class="container-fluid">
@@ -34,24 +34,28 @@
     <div class="col-sm-2 col-md-3 sidebar">
       <ul class="nav nav-sidebar">
         <ul id="found_users"></ul>
-        <table id="conversations"></table>
+        <table id="conversations" class="table"></table>
         <li>
           <form action="{% url 'chat:logout' %}" method="post">
             {% csrf_token %}
-            <input type="submit" value="Logout" />
+            <input type="submit" value="Logout" class="btn btn-default" />
           </form>
         </li>
-			</ul>
-		</div>
+      </ul>
+    </div>
     <div class="col-sm-10 col-sm-offset-2 col-md-9 col-md-offset-3 main">
-			<div id="chat_pane" class="collapse">
-			  <ul id="chat_messages"></ul>
-			  <form id="post_message" method="post">
-			    {% csrf_token %}
-			    <input id="message_text" name="message_text" type="text" placeholder="Message" />
-			    <input type="submit" value="Send" />
-			  </form>
-			</div>
-		</div>
-	</div>
+      <div id="chat_pane" class="collapse">
+        <ul id="chat_messages"></ul>
+        <form id="post_message" method="post" class="compose-form form-horizontal">
+          {% csrf_token %}
+          <div class="input-group full-width">
+            <input id="message_text" name="message_text" type="text" placeholder="Message" class="form-control" />
+            <span class="input-group-btn">
+              <input type="submit" value="Send" class="form-control btn btn-primary" />
+            </span>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>

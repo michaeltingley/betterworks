@@ -121,3 +121,49 @@ span {
   font-size: x-small;
   color: #ababab;
 }
+
+.full-width {
+  width: 100%;
+}
+
+/**
+ * Conversation list
+ */
+
+.conversation-entry {
+  margin: 6px 12px;
+}
+
+.conversation-selected {
+  background-color: #dddddd;
+}
+
+.conversation-email {
+  font-weight: bold;
+}
+
+.conversation-timestamp {
+  float: right;
+  font-size: small;
+  color: #ababab;
+  vertical-align: text-bottom;
+}
+
+.conversation-snippet {
+  font-size: small;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+#conversations tr {
+  border-bottom: 1px solid #dddddd;
+  cursor: pointer;
+}
+
+#conversations tr:last-child {
+  border-bottom: 0;
+}
