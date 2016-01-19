@@ -63,7 +63,7 @@ class LoginView(View):
         if not email:
             return login_failed(request, 'Password must not be blank.')
 
-        if request.POST['action'] == 'Sign up':
+        if 'sign_up' in request.POST:
             if User.objects.filter(username=email).exists():
                 return login_failed(
                     request,

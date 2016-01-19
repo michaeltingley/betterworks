@@ -1,10 +1,11 @@
 {% load staticfiles %}
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-3-typeahead/4.0.0/bootstrap3-typeahead.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <script src="https://js.pusher.com/3.0/pusher.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 <script type="text/javascript">
   CSRF_TOKEN = "{{ csrf_token }}";
   USER_EMAIL = "{{ request.user.username }}";
@@ -17,7 +18,7 @@
       <li>
         <form class="navbar-form" id="find_users" method="post">
           {% csrf_token %}
-          <input class="form-control" id="email_prefix" name="email_prefix" type="text" placeholder="Search by email" />
+          <input class="form-control" id="email_prefix" name="email_prefix" type="text" placeholder="Search by email" autocomplete="off" />
         </form>
       </li>
     </ul>

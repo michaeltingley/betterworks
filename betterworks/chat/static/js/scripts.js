@@ -66,19 +66,11 @@ function createSetActiveConversationFunction(email) {
   };
 }
 
-function makeInitiateChatLinkForEmail(email) {
-  return $('<li />', {
-    html: $('<a />', {
-      text: email,
-      click: createSetActiveConversationFunction(email),
-    })
-  });
-}
-
 function getRecipientEmailFromConversation(conversation) {
-  return conversation.participant_emails.find(function(email) {
+  participant_email = conversation.participant_emails.find(function(email) {
     return email != USER_EMAIL;
   });
+  return participant_email ? participant_email : USER_EMAIL;
 }
 
 function getConversationId(participantEmail) {
@@ -90,6 +82,7 @@ function renderConversation(conversation) {
   return $('<tr />', {
     id: getConversationId(participantEmail),
     click: createSetActiveConversationFunction(participantEmail),
+    class: currentConversationEmail == participantEmail ? 'conversation-selected' : '',
     html: $('<div />', {
         class: 'conversation-entry',
         html: [
@@ -113,16 +106,23 @@ function renderConversation(conversation) {
 }
 
 $(function() {
-  $('#find_users').submit(function(event) {
-    event.preventDefault();
-    $.ajax({
-      type: 'POST',
-      url: '/chat/find_users/',
-      data: $('#find_users').serialize(),
-      success: function(response) {
-        $('#found_users').html($.map(response.emails, makeInitiateChatLinkForEmail));
-      }
-    });
+  $('#email_prefix').typeahead({
+    source: function(query, process) {
+      $.ajax({
+        type: 'POST',
+        url: '/chat/find_users/',
+        data: {
+          'csrfmiddlewaretoken': CSRF_TOKEN,
+          'email_prefix': query,
+        },
+        success: function(response) {
+          process(response.emails);
+        }
+      });
+    },
+    afterSelect: function(email) {
+      createSetActiveConversationFunction(email)();
+    },
   });
   $.ajax({
     type: 'POST',
