@@ -63,11 +63,11 @@ class LoginView(View):
         if not email:
             return login_failed(request, 'Password must not be blank.')
 
-        if request.POST['action'] == 'Sign up':
+        if 'sign_up' in request.POST:
             if User.objects.filter(username=email).exists():
                 return login_failed(
                     request,
-                    "The provided username already exists. Try logging in."
+                    "The provided email already exists. Try logging in."
                 )
             created_user = User.objects.create_user(
                 username=email,
@@ -78,7 +78,7 @@ class LoginView(View):
         if user is None:
             return login_failed(
                 request,
-                "Your username and password didn't match. Please try again."
+                "Your email and password didn't match. Please try again."
             )
         auth.login(request, user)
         return HttpResponseRedirect(reverse('chat:index'))
