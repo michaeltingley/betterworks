@@ -15,6 +15,10 @@ body {
   border: 0;
 }
 
+.navbar-toggle {
+  float: left;
+  margin-left: 20px;
+}
 .navbar-right {
   margin-right: 10px;
 }
@@ -63,6 +67,12 @@ body {
 .nav-sidebar > .active > a:focus {
   color: #fff;
   background-color: #428bca;
+}
+
+#logout_button {
+  position: fixed;
+  bottom: 0;
+  margin-left: 10px;
 }
 
 /*
